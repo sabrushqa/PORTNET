@@ -1,67 +1,110 @@
 package com.a.portnet_back.Services;
 
 import com.a.portnet_back.Models.Agent;
-import com.a.portnet_back.Models.Operateur;
+import com.a.portnet_back.Models.Importateur;
 import com.a.portnet_back.Models.User;
-import com.a.portnet_back.Models.Superviseur;
 import com.a.portnet_back.Repositories.AgentRepository;
-import com.a.portnet_back.Repositories.OperateurRepository;
+import com.a.portnet_back.Repositories.ImportateurRepository;
 import com.a.portnet_back.Repositories.UserRepository;
-import com.a.portnet_back.Repositories.SuperviseurRepository;
-import org.springframework.data.repository.support.Repositories;
+import com.a.portnet_back.Enum.Role;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class AuthService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final SuperviseurRepository superviseurRepository;
-    private final CustomUserDetailsService userDetailsService;
-    private final OperateurRepository operateurRepository;
     private final AgentRepository agentRepository;
+    private final ImportateurRepository importateurRepository;
+
     public AuthService(UserRepository userRepository,
-                       SuperviseurRepository superviseurRepository,
-                       OperateurRepository operateurRepository,
                        AgentRepository agentRepository,
-                       CustomUserDetailsService userDetailsService) {
+                       ImportateurRepository importateurRepository) {
         this.userRepository = userRepository;
-        this.superviseurRepository = superviseurRepository;
-        this.operateurRepository = operateurRepository;
-        this.agentRepository= agentRepository;
-        this.userDetailsService = userDetailsService;
+        this.agentRepository = agentRepository;
+        this.importateurRepository = importateurRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé : " + email));
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .authorities("ROLE_" + user.getRole().name())
+                .accountExpired(false)
+                .accountLocked(!user.isEnabled())
+                .credentialsExpired(false)
+                .disabled(!user.isEnabled())
+                .build();
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+        return userRepository.findByEmail(email).orElse(null);
     }
 
-    public Superviseur findSuperviseurByUserId(Long userId) {
-        return superviseurRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Superviseur non trouvé"));
+
+    public Importateur findImportateurByUserId(Long userId) {
+        return importateurRepository.findByUserId(userId).orElse(null);
     }
-    public Operateur findOperateurByUserId(Long userId) {
-        return operateurRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Opérateur non trouvé"));
-    }
+
     public Agent findAgentByUserId(Long userId) {
-        return agentRepository.findByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("Agent non trouvé"));
+        return agentRepository.findByUserId(userId).orElse(null);
     }
 
 
-    public UserDetails loadUserByUsername(String username) {
-        return userDetailsService.loadUserByUsername(username);
+    public User findSuperviseurByUserId(Long userId) {
+        return userRepository.findById(userId)
+                .filter(user -> user.getRole() == Role.SUPERVISEUR)
+                .orElse(null);
     }
 
-    public boolean userExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
+
+    public User createSuperviseur(String email, String password, String nomComplet) {
+        User superviseur = new User(email, password, Role.SUPERVISEUR, nomComplet);
+        return userRepository.save(superviseur);
     }
 
-    public boolean isUserEnabled(String email) {
-        User user = findByEmail(email);
-        return user.isEnabled();
+
+    public java.util.List<User> findAllSuperviseurs() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole() == Role.SUPERVISEUR)
+                .toList();
+    }
+
+
+    public java.util.List<Importateur> findAllImportateurs() {
+        return importateurRepository.findAllWithUser();
+    }
+
+    public java.util.List<User> findAllImportateurUsers() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole() == Role.IMPORTATEUR)
+                .toList();
+    }
+
+
+    public boolean isImportateur(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getRole() == Role.IMPORTATEUR)
+                .orElse(false);
+    }
+
+
+    public boolean isSuperviseur(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getRole() == Role.SUPERVISEUR)
+                .orElse(false);
+    }
+
+
+    public boolean isAgent(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getRole() == Role.AGENT)
+                .orElse(false);
     }
 }

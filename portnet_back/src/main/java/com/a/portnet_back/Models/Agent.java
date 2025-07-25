@@ -23,28 +23,28 @@ public class Agent {
     @Column(nullable = true)
     private String departement;
 
-    // Relation avec User (un agent = un user)
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    // ID du superviseur (sans relation JPA)
+
     @Column(name = "superviseur_id", nullable = true)
     private Long superviseurId;
 
-    // Token d'activation pour le premier login
+
     @Column(nullable = true)
     private String activationToken;
 
-    // Date de création
+
     @Column(nullable = false)
     private LocalDateTime dateCreation;
 
-    // Statut d'activation
+
     @Column(nullable = false)
     private boolean isActivated = false;
 
-    // Constructeurs
+
     public Agent() {
         this.dateCreation = LocalDateTime.now();
     }
@@ -57,7 +57,6 @@ public class Agent {
         this.departement = departement;
     }
 
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -138,12 +137,12 @@ public class Agent {
         isActivated = activated;
     }
 
-    // Helper method for user assignment
+
     public void assignToUser(User user) {
         this.user = user;
     }
 
-    // Override equals and hashCode for proper entity comparison
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -35,7 +35,7 @@ const Login = () => {
             if (response.ok) {
                 showAlert('success', 'Connexion réussie ! Redirection en cours...');
 
-                // Stockage du token et rôle utilisateur
+
                 const token = data.token;
                 const userRole = data.role;
 
@@ -43,14 +43,14 @@ const Login = () => {
                 localStorage.setItem('role', userRole);
 
 
-                if (userRole === 'OPERATEUR') {
+                if (userRole === 'IMPORTATEUR') {
                     navigate('/dashboard-operateur');
                 } else if (userRole === 'SUPERVISEUR') {
                     navigate('/dashboard');
                 } else if (userRole === 'AGENT') {
                     navigate('/dashboard-agent');
                 } else {
-                    navigate('/dashboard1'); // fallback
+                    navigate('/dashboard1');
                 }
 
 
@@ -358,7 +358,6 @@ const Login = () => {
                         </div>
                     </div>
 
-                    {/* Password Field */}
                     <div style={styles.formGroup}>
                         <label style={styles.label}>Mot de passe</label>
                         <div style={styles.inputContainer}>
@@ -383,7 +382,7 @@ const Login = () => {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
+
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
@@ -402,7 +401,7 @@ const Login = () => {
                         )}
                     </button>
 
-                    {/* Forgot Password */}
+
                     <div style={styles.forgotPassword}>
                         <a href="#" style={styles.forgotPasswordLink}>
                             Mot de passe oublié ?
@@ -410,7 +409,7 @@ const Login = () => {
                         <Link to="/inscription-operateur">Inscription Opérateur</Link>
                     </div>
 
-                    {/* Footer */}
+
                     <div style={styles.footer}>
                         © 2025 PORTNET. Tous droits réservés.
                     </div>

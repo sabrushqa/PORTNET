@@ -3,7 +3,8 @@ package com.a.portnet_back.Models;
 import jakarta.persistence.*;
 
 @Entity
-public class Operateur {
+@Table(name = "importateur")
+public class Importateur {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,23 +16,32 @@ public class Operateur {
     private String adresse;
     private String ville;
     private String pays;
-    private String rc; // Registre de commerce
-    private String ice; // Identifiant commun de l’entreprise
-    private String ifiscale; // Identifiant fiscal
+    private String rc;
+    private String ice;
+    private String ifiscale;
     private String patente;
     private String emailProfessionnel;
 
-    private String domaineActivite; // par exemple "Importation de produits alimentaires"
-    private String typeOperation;   // Import, Export ou les deux
+    private String domaineActivite;
+    private String typeOperation;
 
-    private boolean certifieISO; // par exemple s'il est certifié qualité
-    private String statutDouanier; // Opérateur agréé, etc.
+    private boolean certifieISO;
+    private String statutDouanier;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    // --- Getters et Setters ---
+
+    public Importateur() {}
+
+    public Importateur(String nomComplet, String societe, String telephone, User user) {
+        this.nomComplet = nomComplet;
+        this.societe = societe;
+        this.telephone = telephone;
+        this.user = user;
+    }
+
 
     public Long getId() {
         return id;

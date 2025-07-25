@@ -19,7 +19,7 @@ public class AgentRequest {
         this.departement = departement;
     }
 
-    // Getters et Setters
+
     public String getNomComplet() {
         return nomComplet;
     }
